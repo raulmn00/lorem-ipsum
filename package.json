@@ -1,0 +1,12 @@
+{
+  "name": "photo-gallery",
+  "private": true,
+  "scripts": {
+    "dev": "docker-compose -f docker-compose.dev.yml up",
+    "build": "docker-compose build",
+    "db:migrate": "pnpm --filter @photo-gallery/auth-service run migration:run"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
