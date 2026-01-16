@@ -13,14 +13,14 @@ import {
 } from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { UpdatePhotoDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { InternalAuthGuard } from '../auth/guards/internal-auth.guard';
 
 @Controller('photos')
 export class PhotosController {
   constructor(private readonly photosService: PhotosService) {}
 
   @Get('album/:albumId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async findByAlbum(
     @Param('albumId', ParseUUIDPipe) albumId: string,
     @Query('page') page?: string,
@@ -38,13 +38,13 @@ export class PhotosController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.photosService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePhotoDto: UpdatePhotoDto,
@@ -53,7 +53,7 @@ export class PhotosController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.photosService.remove(id);

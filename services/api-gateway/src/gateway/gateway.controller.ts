@@ -27,7 +27,7 @@ export class GatewayController {
     @Req() req: Request,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const path = req.path.replace('/api', '');
+    const path = req.originalUrl.replace('/api', '');
     return this.proxyService.forward('albums', path, req.method, req.body, {
       'x-user-id': user.id,
       'x-user-email': user.email,
@@ -40,7 +40,7 @@ export class GatewayController {
     @Req() req: Request,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const path = req.path.replace('/api', '');
+    const path = req.originalUrl.replace('/api', '');
     return this.proxyService.forward('albums', path, req.method, req.body, {
       'x-user-id': user.id,
       'x-user-email': user.email,
@@ -61,7 +61,7 @@ export class GatewayController {
     @Req() req: Request,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const path = req.path.replace('/api', '');
+    const path = req.originalUrl.replace('/api', '');
     return this.proxyService.forward('photos', path, req.method, req.body, {
       'x-user-id': user.id,
       'x-user-email': user.email,
@@ -75,7 +75,7 @@ export class GatewayController {
     @Req() req: Request,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const path = req.path.replace('/api', '');
+    const path = req.originalUrl.replace('/api', '');
     return this.proxyService.forward('upload', path, req.method, req.body, {
       'x-user-id': user.id,
       'x-user-email': user.email,

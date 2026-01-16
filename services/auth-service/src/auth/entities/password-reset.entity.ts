@@ -14,7 +14,7 @@ export class PasswordReset {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
   @ManyToOne(() => User)
@@ -22,13 +22,13 @@ export class PasswordReset {
   user: User;
 
   @Index({ unique: true })
-  @Column({ length: 64 })
+  @Column({ type: 'varchar', length: 64 })
   token: string;
 
-  @Column({ name: 'expires_at' })
+  @Column({ name: 'expires_at', type: 'timestamp' })
   expiresAt: Date;
 
-  @Column({ name: 'used_at', nullable: true })
+  @Column({ name: 'used_at', type: 'timestamp', nullable: true })
   usedAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })

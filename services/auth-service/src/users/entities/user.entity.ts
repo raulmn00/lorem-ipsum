@@ -19,14 +19,14 @@ export class User {
   @Column({ length: 255 })
   email: string;
 
-  @Column({ name: 'password_hash', length: 255, nullable: true })
+  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
   passwordHash: string | null;
 
   @Index()
-  @Column({ name: 'google_id', length: 255, nullable: true })
+  @Column({ name: 'google_id', type: 'varchar', length: 255, nullable: true })
   googleId: string | null;
 
-  @Column({ name: 'avatar_url', length: 500, nullable: true })
+  @Column({ name: 'avatar_url', type: 'varchar', length: 500, nullable: true })
   avatarUrl: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

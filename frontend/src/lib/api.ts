@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL || 'http://localhost:4004';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -9,8 +10,24 @@ export const api = axios.create({
   },
 });
 
-// Add auth interceptor
+// Direct connection to upload service for file uploads
+export const uploadClient = axios.create({
+  baseURL: UPLOAD_URL,
+});
+
+// Add auth interceptor to main API
 api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// Add auth interceptor to upload client
+uploadClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -60,22 +77,22 @@ export const photosApi = {
   delete: (id: string) => api.delete(`/photos/${id}`),
 };
 
-// Upload API
+// Upload API - connects directly to upload service
 export const uploadApi = {
   uploadPhoto: (albumId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post(`/upload/photo/${albumId}`, formData, {
+    return uploadClient.post(`/upload/photo/${albumId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
   uploadPhotos: (albumId: string, files: File[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
-    return api.post(`/upload/photos/${albumId}`, formData, {
+    return uploadClient.post(`/upload/photos/${albumId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
   getPresignedUrl: (key: string) =>
-    api.get(`/upload/presigned/${encodeURIComponent(key)}`),
+    uploadClient.get(`/upload/presigned/${encodeURIComponent(key)}`),
 };

@@ -24,7 +24,7 @@ export class Photo {
   @Column({ name: 'file_key', length: 500 })
   fileKey: string;
 
-  @Column({ name: 'thumbnail_key', length: 500, nullable: true })
+  @Column({ name: 'thumbnail_key', type: 'varchar', length: 500, nullable: true })
   thumbnailKey: string | null;
 
   @Column({ name: 'size_bytes', type: 'bigint' })

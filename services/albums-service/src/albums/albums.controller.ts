@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { InternalAuthGuard } from '../auth/guards/internal-auth.guard';
 import { CurrentUser, CurrentUserPayload } from '../auth/decorators/current-user.decorator';
 
 @Controller('albums')
@@ -22,7 +22,7 @@ export class AlbumsController {
   constructor(private readonly albumsService: AlbumsService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async findAll(
     @CurrentUser() user: CurrentUserPayload,
     @Query('page') page?: string,
@@ -36,7 +36,7 @@ export class AlbumsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async create(
     @CurrentUser() user: CurrentUserPayload,
     @Body() createAlbumDto: CreateAlbumDto,
@@ -50,7 +50,7 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async findOne(
     @CurrentUser() user: CurrentUserPayload,
     @Param('id', ParseUUIDPipe) id: string,
@@ -59,7 +59,7 @@ export class AlbumsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async update(
     @CurrentUser() user: CurrentUserPayload,
     @Param('id', ParseUUIDPipe) id: string,
@@ -69,7 +69,7 @@ export class AlbumsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @CurrentUser() user: CurrentUserPayload,
@@ -79,7 +79,7 @@ export class AlbumsController {
   }
 
   @Post(':id/share')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   async share(
     @CurrentUser() user: CurrentUserPayload,
     @Param('id', ParseUUIDPipe) id: string,
@@ -88,7 +88,7 @@ export class AlbumsController {
   }
 
   @Delete(':id/share')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async unshare(
     @CurrentUser() user: CurrentUserPayload,

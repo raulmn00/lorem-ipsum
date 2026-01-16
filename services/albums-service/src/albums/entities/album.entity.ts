@@ -26,7 +26,7 @@ export class Album {
   isPublic: boolean;
 
   @Index({ unique: true })
-  @Column({ name: 'public_token', length: 64, nullable: true })
+  @Column({ name: 'public_token', type: 'varchar', length: 64, nullable: true })
   publicToken: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
