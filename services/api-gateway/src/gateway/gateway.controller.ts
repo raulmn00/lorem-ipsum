@@ -13,11 +13,19 @@ import { CurrentUser, CurrentUserPayload } from '../auth/decorators/current-user
 export class GatewayController {
   constructor(private proxyService: ProxyService) {}
 
-  // Auth routes (public)
+  // Auth routes (public, but some need Authorization header)
   @All('auth/*')
   async authRoutes(@Req() req: Request) {
     const path = req.path.replace('/api', '');
-    return this.proxyService.forward('auth', path, req.method, req.body);
+    const headers: Record<string, string> = {};
+
+    // Pass Authorization header for routes that need it (like /auth/me)
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
+    return this.proxyService.forward('auth', path, req.method, req.body, headers);
   }
 
   // Albums routes (protected)

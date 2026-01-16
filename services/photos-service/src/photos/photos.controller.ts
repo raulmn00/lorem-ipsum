@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Body,
@@ -12,12 +13,18 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PhotosService } from './photos.service';
-import { UpdatePhotoDto } from './dto';
+import { CreatePhotoDto, UpdatePhotoDto } from './dto';
 import { InternalAuthGuard } from '../auth/guards/internal-auth.guard';
 
 @Controller('photos')
 export class PhotosController {
   constructor(private readonly photosService: PhotosService) {}
+
+  @Post()
+  @UseGuards(InternalAuthGuard)
+  async create(@Body() createPhotoDto: CreatePhotoDto) {
+    return this.photosService.create(createPhotoDto);
+  }
 
   @Get('album/:albumId')
   @UseGuards(InternalAuthGuard)

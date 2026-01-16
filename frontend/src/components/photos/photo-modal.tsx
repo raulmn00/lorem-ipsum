@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -92,6 +92,7 @@ export function PhotoModal({ photo, photos, open, onOpenChange, onPhotoChange }:
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0" showCloseButton={true}>
+        <DialogTitle className="sr-only">{photo.title}</DialogTitle>
         <div className="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
           {imageUrl && (
             <img

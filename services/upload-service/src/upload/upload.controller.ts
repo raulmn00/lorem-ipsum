@@ -38,7 +38,7 @@ export class UploadController {
     }
 
     const result = await this.uploadService.uploadPhoto(
-      user.id,
+      { id: user.id, email: user.email },
       albumId,
       file.buffer,
     );
@@ -67,7 +67,7 @@ export class UploadController {
 
     const results = await Promise.all(
       files.map((file) =>
-        this.uploadService.uploadPhoto(user.id, albumId, file.buffer),
+        this.uploadService.uploadPhoto({ id: user.id, email: user.email }, albumId, file.buffer),
       ),
     );
 
