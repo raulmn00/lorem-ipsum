@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Pencil, Trash2, Download } from 'lucide-react';
+import { MoreVertical, Pencil, Trash2, Download, ImageIcon } from 'lucide-react';
 import { Photo, usePresignedUrl } from '@/hooks/use-photos';
 
 interface PhotoCardProps {
@@ -11,9 +11,10 @@ interface PhotoCardProps {
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSetAsCover?: () => void;
 }
 
-export function PhotoCard({ photo, onClick, onEdit, onDelete }: PhotoCardProps) {
+export function PhotoCard({ photo, onClick, onEdit, onDelete, onSetAsCover }: PhotoCardProps) {
   const { data: thumbnailUrl } = usePresignedUrl(photo.thumbnailKey);
   const { data: fullUrl } = usePresignedUrl(photo.fileKey);
 
@@ -61,6 +62,12 @@ export function PhotoCard({ photo, onClick, onEdit, onDelete }: PhotoCardProps) 
               <Download className="h-4 w-4 mr-2" />
               Download
             </DropdownMenuItem>
+            {onSetAsCover && (
+              <DropdownMenuItem onClick={onSetAsCover}>
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Definir como capa
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={onDelete} className="text-red-600">
               <Trash2 className="h-4 w-4 mr-2" />
               Excluir

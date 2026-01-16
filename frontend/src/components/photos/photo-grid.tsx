@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Photo } from '@/hooks/use-photos';
+import { useSetAlbumThumbnail } from '@/hooks/use-albums';
 import { PhotoCard } from './photo-card';
 import { PhotoModal } from './photo-modal';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,10 +10,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface PhotoGridProps {
   photos: Photo[];
   isLoading: boolean;
+  albumId: string;
 }
 
-export function PhotoGrid({ photos, isLoading }: PhotoGridProps) {
+export function PhotoGrid({ photos, isLoading, albumId }: PhotoGridProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const setThumbnail = useSetAlbumThumbnail();
 
   if (isLoading) {
     return (
@@ -49,6 +52,9 @@ export function PhotoGrid({ photos, isLoading }: PhotoGridProps) {
             onDelete={() => {
               // Will be handled in modal
               setSelectedPhoto(photo);
+            }}
+            onSetAsCover={() => {
+              setThumbnail.mutate({ albumId, thumbnailKey: photo.thumbnailKey || photo.fileKey });
             }}
           />
         ))}

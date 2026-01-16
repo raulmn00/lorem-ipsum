@@ -196,6 +196,9 @@ export const albumsApi = {
   share: (id: string) => api.post(`/albums/${id}/share`),
   unshare: (id: string) => api.delete(`/albums/${id}/share`),
   getShared: (token: string) => api.get(`/albums/shared/${token}`),
+  setThumbnail: (id: string, thumbnailKey: string) =>
+    api.patch(`/albums/${id}/thumbnail`, { thumbnailKey }),
+  removeThumbnail: (id: string) => api.delete(`/albums/${id}/thumbnail`),
 };
 
 // Photos API

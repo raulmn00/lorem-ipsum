@@ -25,6 +25,7 @@ describe('AlbumsService', () => {
     description: 'A test album',
     isPublic: false,
     publicToken: null,
+    thumbnailKey: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

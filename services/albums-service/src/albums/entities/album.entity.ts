@@ -29,6 +29,9 @@ export class Album {
   @Column({ name: 'public_token', type: 'varchar', length: 64, nullable: true })
   publicToken: string | null;
 
+  @Column({ name: 'thumbnail_key', type: 'varchar', length: 500, nullable: true })
+  thumbnailKey: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

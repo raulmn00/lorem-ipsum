@@ -83,4 +83,11 @@ export class UploadController {
     const url = await this.uploadService.getPresignedUrl(key);
     return { url };
   }
+
+  // Public endpoint for shared albums (presigned URLs are time-limited anyway)
+  @Get('public/presigned/:key(*)')
+  async getPublicPresignedUrl(@Param('key') key: string) {
+    const url = await this.uploadService.getPresignedUrl(key);
+    return { url };
+  }
 }

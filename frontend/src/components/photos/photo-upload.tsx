@@ -41,15 +41,24 @@ export function PhotoUpload({ albumId }: PhotoUploadProps) {
     [albumId, uploadPhotos]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: ACCEPTED_TYPES,
     maxSize: MAX_SIZE,
+    noClick: true,
+    noKeyboard: true,
   });
+
+  const handleClick = () => {
+    if (!uploadPhotos.isPending) {
+      open();
+    }
+  };
 
   return (
     <div
       {...getRootProps()}
+      onClick={handleClick}
       className={`
         border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
         transition-colors

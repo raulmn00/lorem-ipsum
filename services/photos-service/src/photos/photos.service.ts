@@ -1,15 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 import { Photo } from './entities/photo.entity';
 import { CreatePhotoDto, UpdatePhotoDto } from './dto';
 
 @Injectable()
 export class PhotosService {
+  private readonly albumsServiceUrl: string;
+
   constructor(
     @InjectRepository(Photo)
     private photosRepository: Repository<Photo>,
-  ) {}
+    private httpService: HttpService,
+    private configService: ConfigService,
+  ) {
+    this.albumsServiceUrl = this.configService.get<string>('ALBUMS_SERVICE_URL') || 'http://localhost:4002';
+  }
 
   async findByAlbum(
     albumId: string,
@@ -36,6 +45,21 @@ export class PhotosService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async findBySharedAlbum(token: string, page = 1, limit = 20) {
+    // Verify the album is shared by calling albums-service
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.albumsServiceUrl}/albums/shared/${token}`),
+      );
+      const album = response.data;
+
+      // Get photos for this album
+      return this.findByAlbum(album.id, page, limit);
+    } catch {
+      throw new NotFoundException('Álbum não encontrado ou não está compartilhado');
+    }
   }
 
   async findOne(id: string): Promise<Photo> {

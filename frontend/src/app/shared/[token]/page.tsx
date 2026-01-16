@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, Image, ExternalLink } from 'lucide-react';
@@ -44,23 +44,20 @@ export default function SharedAlbumPage() {
     enabled: !!token,
   });
 
-  // Fetch photos - we need to create a custom fetch that doesn't require auth
+  // Fetch photos using public endpoint
   const { data: photosData, isLoading: photosLoading } = useQuery({
-    queryKey: ['shared-photos', album?.id, page],
+    queryKey: ['shared-photos', token, page],
     queryFn: async () => {
-      if (!album?.id) return null;
-      // Note: In a real implementation, you'd have a public photos endpoint
-      // For now, we'll simulate this with the photos API (which requires the gateway to allow public access)
-      const { data } = await api.get(`/photos/album/${album.id}?page=${page}&limit=20`);
+      const { data } = await api.get(`/photos/shared/${token}?page=${page}&limit=20`);
       return data;
     },
-    enabled: !!album?.id,
+    enabled: !!token,
   });
 
-  // Fetch presigned URL for a photo
+  // Fetch presigned URL for a photo using public endpoint
   const getPresignedUrl = async (key: string) => {
     try {
-      const { data } = await api.get(`/upload/presigned/${encodeURIComponent(key)}`);
+      const { data } = await api.get(`/upload/public/presigned/${encodeURIComponent(key)}`);
       return data.url;
     } catch {
       return null;
@@ -177,6 +174,7 @@ export default function SharedAlbumPage() {
       {/* Photo Modal */}
       <Dialog open={!!selectedPhoto} onOpenChange={(open) => !open && setSelectedPhoto(null)}>
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0" showCloseButton={true}>
+          <DialogTitle className="sr-only">{selectedPhoto?.title || 'Foto'}</DialogTitle>
           {selectedPhoto && (
             <PhotoViewer
               photo={selectedPhoto}

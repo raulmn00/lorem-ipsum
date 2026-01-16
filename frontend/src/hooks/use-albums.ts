@@ -9,6 +9,7 @@ export interface Album {
   description: string | null;
   isPublic: boolean;
   publicToken: string | null;
+  thumbnailKey: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -130,6 +131,25 @@ export function useUnshareAlbum() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Erro ao remover compartilhamento');
+    },
+  });
+}
+
+export function useSetAlbumThumbnail() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ albumId, thumbnailKey }: { albumId: string; thumbnailKey: string }) => {
+      const { data } = await albumsApi.setThumbnail(albumId, thumbnailKey);
+      return data;
+    },
+    onSuccess: (_, { albumId }) => {
+      queryClient.invalidateQueries({ queryKey: ['albums'] });
+      queryClient.invalidateQueries({ queryKey: ['album', albumId] });
+      toast.success('Capa do album atualizada!');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Erro ao definir capa do album');
     },
   });
 }

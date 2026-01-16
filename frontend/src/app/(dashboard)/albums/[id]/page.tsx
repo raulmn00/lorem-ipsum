@@ -89,7 +89,7 @@ export default function AlbumDetailPage() {
         </Tabs>
       </div>
 
-      <PhotoGrid photos={photosData?.data || []} isLoading={photosLoading} />
+      <PhotoGrid photos={photosData?.data || []} isLoading={photosLoading} albumId={albumId} />
 
       {photosData && photosData.meta.totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-8">

@@ -62,6 +62,20 @@ export class GatewayController {
     return this.proxyService.forward('albums', path, req.method, req.body);
   }
 
+  // Public photos for shared albums (no auth)
+  @All('photos/shared/*')
+  async sharedPhotosRoute(@Req() req: Request) {
+    const path = req.originalUrl.replace('/api', '');
+    return this.proxyService.forward('photos', path, req.method, req.body);
+  }
+
+  // Public presigned URL (no auth)
+  @All('upload/public/*')
+  async publicUploadRoute(@Req() req: Request) {
+    const path = req.originalUrl.replace('/api', '');
+    return this.proxyService.forward('upload', path, req.method, req.body);
+  }
+
   // Photos routes (protected)
   @All('photos/*')
   @UseGuards(JwtAuthGuard)

@@ -13,7 +13,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
-import { CreateAlbumDto, UpdateAlbumDto } from './dto';
+import { CreateAlbumDto, UpdateAlbumDto, SetThumbnailDto } from './dto';
 import { InternalAuthGuard } from '../auth/guards/internal-auth.guard';
 import { CurrentUser, CurrentUserPayload } from '../auth/decorators/current-user.decorator';
 
@@ -95,5 +95,25 @@ export class AlbumsController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     await this.albumsService.unshare(id, user.id);
+  }
+
+  @Patch(':id/thumbnail')
+  @UseGuards(InternalAuthGuard)
+  async setThumbnail(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() setThumbnailDto: SetThumbnailDto,
+  ) {
+    return this.albumsService.setThumbnail(id, user.id, setThumbnailDto.thumbnailKey);
+  }
+
+  @Delete(':id/thumbnail')
+  @UseGuards(InternalAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeThumbnail(
+    @CurrentUser() user: CurrentUserPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    await this.albumsService.removeThumbnail(id, user.id);
   }
 }

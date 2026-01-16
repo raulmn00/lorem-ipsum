@@ -8,11 +8,15 @@
     "start:prod": "node dist/main",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/data-source.ts",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",
+    "dotenv": "^16.3.1",
     "@nestjs/core": "^10.3.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.3.0",
@@ -28,6 +32,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "tsconfig-paths": "^4.2.0",
     "@nestjs/cli": "^10.3.0",
     "@nestjs/schematics": "^10.1.0",
     "@nestjs/testing": "^10.3.0",

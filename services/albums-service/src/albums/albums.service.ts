@@ -106,4 +106,16 @@ export class AlbumsService {
 
     return album;
   }
+
+  async setThumbnail(id: string, userId: string, thumbnailKey: string): Promise<Album> {
+    const album = await this.findOne(id, userId);
+    album.thumbnailKey = thumbnailKey;
+    return this.albumsRepository.save(album);
+  }
+
+  async removeThumbnail(id: string, userId: string): Promise<Album> {
+    const album = await this.findOne(id, userId);
+    album.thumbnailKey = null;
+    return this.albumsRepository.save(album);
+  }
 }

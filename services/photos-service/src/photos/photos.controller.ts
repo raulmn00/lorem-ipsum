@@ -44,6 +44,20 @@ export class PhotosController {
     );
   }
 
+  // Public endpoint for shared albums
+  @Get('shared/:token')
+  async findBySharedToken(
+    @Param('token') token: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.photosService.findBySharedAlbum(
+      token,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 20,
+    );
+  }
+
   @Get(':id')
   @UseGuards(InternalAuthGuard)
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
