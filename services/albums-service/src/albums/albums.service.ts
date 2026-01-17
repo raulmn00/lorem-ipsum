@@ -1,19 +1,29 @@
 import {
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 import { randomBytes } from 'crypto';
 import { Album } from './entities/album.entity';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto';
 
 @Injectable()
 export class AlbumsService {
+  private readonly photosServiceUrl: string;
+
   constructor(
     @InjectRepository(Album)
     private albumsRepository: Repository<Album>,
-  ) {}
+    private httpService: HttpService,
+    private configService: ConfigService,
+  ) {
+    this.photosServiceUrl = this.configService.get<string>('PHOTOS_SERVICE_URL') || 'http://localhost:4003';
+  }
 
   async findAllByUser(userId: string, page = 1, limit = 10) {
     const [albums, total] = await this.albumsRepository.findAndCount({
@@ -69,6 +79,31 @@ export class AlbumsService {
 
   async remove(id: string, userId: string): Promise<void> {
     const album = await this.findOne(id, userId);
+
+    // Check if album has photos
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.photosServiceUrl}/photos/album/${id}/count`, {
+          headers: {
+            'x-user-id': userId,
+            'x-user-email': 'internal@system',
+          },
+        }),
+      );
+
+      if (response.data.count > 0) {
+        throw new BadRequestException(
+          `Não é possível excluir o álbum pois ele contém ${response.data.count} foto(s). Exclua as fotos primeiro.`
+        );
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      // If photos service is unavailable, log but allow deletion
+      console.error('Could not check photos count:', error.message);
+    }
+
     await this.albumsRepository.remove(album);
   }
 

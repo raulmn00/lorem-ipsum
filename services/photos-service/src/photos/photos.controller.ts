@@ -79,4 +79,11 @@ export class PhotosController {
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.photosService.remove(id);
   }
+
+  @Get('album/:albumId/count')
+  @UseGuards(InternalAuthGuard)
+  async countByAlbum(@Param('albumId', ParseUUIDPipe) albumId: string) {
+    const count = await this.photosService.countByAlbum(albumId);
+    return { count };
+  }
 }

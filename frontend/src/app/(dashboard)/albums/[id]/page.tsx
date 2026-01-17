@@ -5,10 +5,11 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ArrowLeft, Share2, LayoutGrid, Table } from 'lucide-react';
 import { useAlbum, useShareAlbum } from '@/hooks/use-albums';
 import { usePhotos } from '@/hooks/use-photos';
 import { PhotoGrid } from '@/components/photos/photo-grid';
+import { PhotoTable } from '@/components/photos/photo-table';
 import { PhotoUpload } from '@/components/photos/photo-upload';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -18,6 +19,7 @@ export default function AlbumDetailPage() {
   const albumId = params.id as string;
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'DESC' | 'ASC'>('DESC');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const { data: album, isLoading: albumLoading } = useAlbum(albumId);
   const { data: photosData, isLoading: photosLoading } = usePhotos(
@@ -78,9 +80,33 @@ export default function AlbumDetailPage() {
       </div>
 
       <div className="flex items-center justify-between mb-6">
-        <span className="text-sm text-gray-600">
-          {photosData?.meta.total || 0} foto(s)
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">
+            {photosData?.meta.total || 0} foto(s)
+          </span>
+          <span className="text-sm text-gray-400">|</span>
+          <span className="text-sm text-gray-600">Visualizar como:</span>
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="rounded-r-none"
+            >
+              <Table className="h-4 w-4 mr-1" />
+              Tabela
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="rounded-l-none"
+            >
+              <LayoutGrid className="h-4 w-4 mr-1" />
+              Miniaturas
+            </Button>
+          </div>
+        </div>
         <Tabs value={sortOrder} onValueChange={(v) => setSortOrder(v as 'ASC' | 'DESC')}>
           <TabsList>
             <TabsTrigger value="DESC">Mais recentes</TabsTrigger>
@@ -89,7 +115,11 @@ export default function AlbumDetailPage() {
         </Tabs>
       </div>
 
-      <PhotoGrid photos={photosData?.data || []} isLoading={photosLoading} albumId={albumId} />
+      {viewMode === 'grid' ? (
+        <PhotoGrid photos={photosData?.data || []} isLoading={photosLoading} albumId={albumId} />
+      ) : (
+        <PhotoTable photos={photosData?.data || []} isLoading={photosLoading} albumId={albumId} />
+      )}
 
       {photosData && photosData.meta.totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-8">
