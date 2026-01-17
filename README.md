@@ -49,7 +49,7 @@ Uma aplicação web completa para gerenciamento de álbuns de fotos, construída
 ## Pré-requisitos
 
 - Node.js 20+
-- pnpm (`npm install -g pnpm`)
+- npm (incluido com Node.js)
 - Docker e Docker Compose
 
 ## Instalação
@@ -59,11 +59,11 @@ Uma aplicação web completa para gerenciamento de álbuns de fotos, construída
 git clone <repo-url>
 cd dr-tis
 
-# Instalar dependências
-pnpm install
-
 # Copiar arquivo de configuração
 cp .env.example .env
+
+# As dependências serão instaladas automaticamente pelo script start-dev.sh
+# Ou instale manualmente em cada serviço com: npm install
 ```
 
 ## Executando em Desenvolvimento
@@ -298,8 +298,7 @@ dr-tis/
 ├── docker-compose.yml       # Production compose
 ├── docker-compose.dev.yml   # Development compose
 ├── start-dev.sh             # Script para iniciar ambiente dev
-├── stop-dev.sh              # Script para parar ambiente dev
-└── pnpm-workspace.yaml      # Monorepo config
+└── stop-dev.sh              # Script para parar ambiente dev
 ```
 
 ## Testes
