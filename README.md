@@ -68,19 +68,49 @@ cp .env.example .env
 
 ## Executando em Desenvolvimento
 
-### 1. Iniciar infraestrutura (PostgreSQL e MinIO)
+### Inicio Rapido (Recomendado)
+
+Use o script automatizado que inicia todo o ambiente com um unico comando:
 
 ```bash
-pnpm dev
-# ou
-docker-compose -f docker-compose.dev.yml up -d
+# Iniciar todo o ambiente (Docker + servicos + frontend)
+./start-dev.sh
 ```
 
-Isso iniciará:
+O script ira:
+1. Iniciar containers Docker (PostgreSQL e MinIO)
+2. Aguardar os containers ficarem prontos
+3. Instalar dependencias (`npm install`) em todos os servicos
+4. Iniciar todos os microsservicos em sequencia
+5. Iniciar o frontend
+6. Exibir URLs de todos os servicos
+
+**Para encerrar:** Pressione `Ctrl+C` no terminal ou execute:
+
+```bash
+# Parar todos os servicos
+./stop-dev.sh
+```
+
+Os logs ficam disponiveis em `/tmp/photo-gallery-logs/`.
+
+---
+
+### Inicio Manual (Alternativo)
+
+Se preferir iniciar os servicos manualmente:
+
+#### 1. Iniciar infraestrutura (PostgreSQL e MinIO)
+
+```bash
+docker compose up -d postgres minio
+```
+
+Isso iniciara:
 - **PostgreSQL** em `localhost:5432`
 - **MinIO** em `localhost:9000` (Console: `localhost:9001`)
 
-### 2. Configurar o MinIO
+#### 2. Configurar o MinIO
 
 Acesse o console do MinIO em http://localhost:9001:
 - Login: `minioadmin`
@@ -88,7 +118,7 @@ Acesse o console do MinIO em http://localhost:9001:
 
 Crie um bucket chamado `photos`.
 
-### 3. Rodar migrations do banco de dados
+#### 3. Rodar migrations do banco de dados
 
 ```bash
 cd services/auth-service
@@ -96,7 +126,7 @@ npm run build
 npm run migration:run
 ```
 
-### 4. Iniciar os microsserviços
+#### 4. Iniciar os microsservicos
 
 Em terminais separados, execute:
 
@@ -117,13 +147,13 @@ cd services/upload-service && npm run start:dev
 cd services/api-gateway && npm run start:dev
 ```
 
-### 5. Iniciar o frontend
+#### 5. Iniciar o frontend
 
 ```bash
 cd frontend && npm run dev
 ```
 
-### 6. Acessar a aplicação
+#### 6. Acessar a aplicacao
 
 Abra http://localhost:3000 no navegador.
 
@@ -267,6 +297,8 @@ dr-tis/
 │   └── plans/               # Design and planning docs
 ├── docker-compose.yml       # Production compose
 ├── docker-compose.dev.yml   # Development compose
+├── start-dev.sh             # Script para iniciar ambiente dev
+├── stop-dev.sh              # Script para parar ambiente dev
 └── pnpm-workspace.yaml      # Monorepo config
 ```
 
