@@ -1,20 +1,36 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User, Image } from 'lucide-react';
+import { LogOut, User, Image, Settings } from 'lucide-react';
+import { uploadApi } from '@/lib/api';
 
 export function Header() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Load avatar presigned URL
+  useEffect(() => {
+    if (user?.avatarUrl) {
+      uploadApi.getPresignedUrl(user.avatarUrl)
+        .then(({ data }) => setAvatarUrl(data.url))
+        .catch(() => setAvatarUrl(null));
+    } else {
+      setAvatarUrl(null);
+    }
+  }, [user?.avatarUrl]);
 
   const handleLogout = () => {
     logout();
@@ -31,25 +47,33 @@ export function Header() {
   return (
     <header className="border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link href="/albums" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Image className="h-6 w-6 text-blue-600" />
           <span className="font-semibold text-lg">Meus Albuns</span>
-        </div>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.avatarUrl || undefined} />
+                <AvatarImage src={avatarUrl || undefined} />
                 <AvatarFallback>{initials || 'U'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span>{user?.name}</span>
+            <div className="px-2 py-1.5">
+              <p className="text-sm font-medium">{user?.name}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
+                <Settings className="h-4 w-4" />
+                <span>Meu Perfil</span>
+              </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-red-600">
               <LogOut className="h-4 w-4" />
               <span>Sair</span>

@@ -181,6 +181,8 @@ export const authApi = {
   me: () => api.get('/auth/me'),
   refresh: (refreshToken: string) =>
     api.post('/auth/refresh', { refreshToken }),
+  updateProfile: (data: { name?: string }) =>
+    api.patch('/auth/profile', data),
 };
 
 // Albums API
@@ -224,6 +226,13 @@ export const uploadApi = {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
     return uploadClient.post(`/upload/photos/${albumId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return uploadClient.post('/upload/avatar', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },

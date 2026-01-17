@@ -16,6 +16,10 @@ export interface UploadResult {
   acquiredAt: Date;
 }
 
+export interface AvatarUploadResult {
+  avatarUrl: string;
+}
+
 export interface UserInfo {
   id: string;
   email: string;
@@ -25,6 +29,7 @@ export interface UserInfo {
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
   private readonly photosServiceUrl: string;
+  private readonly authServiceUrl: string;
 
   constructor(
     private storageService: StorageService,
@@ -33,6 +38,7 @@ export class UploadService {
     private configService: ConfigService,
   ) {
     this.photosServiceUrl = this.configService.get<string>('PHOTOS_SERVICE_URL') || 'http://localhost:4003';
+    this.authServiceUrl = this.configService.get<string>('AUTH_SERVICE_URL') || 'http://localhost:4001';
   }
 
   async uploadPhoto(
@@ -108,6 +114,50 @@ export class UploadService {
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to create photo record: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async uploadAvatar(user: UserInfo, buffer: Buffer): Promise<AvatarUploadResult> {
+    // Process image for avatar (resize to 256x256)
+    const processed = await this.imageService.processAvatar(buffer);
+
+    // Generate unique key for avatar (overwrite previous if exists)
+    const avatarKey = `avatars/${user.id}.jpg`;
+
+    // Upload to MinIO
+    await this.storageService.uploadFile(
+      avatarKey,
+      processed,
+      'image/jpeg',
+    );
+
+    // Update user's avatar in auth-service
+    await this.updateUserAvatar(user, avatarKey);
+
+    this.logger.log(`Avatar uploaded for user ${user.id}`);
+
+    return { avatarUrl: avatarKey };
+  }
+
+  private async updateUserAvatar(user: UserInfo, avatarKey: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.httpService.patch(
+          `${this.authServiceUrl}/auth/profile`,
+          { avatarUrl: avatarKey },
+          {
+            headers: {
+              'x-user-id': user.id,
+              'x-user-email': user.email,
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      );
+      this.logger.log(`Avatar URL updated in auth-service for user ${user.id}`);
+    } catch (error) {
+      this.logger.error(`Failed to update avatar URL: ${error.message}`);
       throw error;
     }
   }

@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Body,
   UseGuards,
   HttpCode,
@@ -14,8 +15,10 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
   GoogleAuthDto,
+  UpdateProfileDto,
 } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CombinedAuthGuard } from './guards/combined-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 
 @Controller('auth')
@@ -62,5 +65,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: { id: string; email: string; name: string }) {
     return user;
+  }
+
+  @Patch('profile')
+  @UseGuards(CombinedAuthGuard)
+  async updateProfile(
+    @CurrentUser() user: { id: string },
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.id, updateProfileDto);
   }
 }

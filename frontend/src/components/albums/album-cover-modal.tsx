@@ -92,8 +92,25 @@ export function AlbumCoverModal({ album, open, onOpenChange }: AlbumCoverModalPr
     [album, setThumbnail, onOpenChange]
   );
 
+  const onDropRejected = useCallback((fileRejections: any[]) => {
+    fileRejections.forEach((rejection) => {
+      const { file, errors } = rejection;
+      errors.forEach((error: any) => {
+        if (error.code === 'file-too-large') {
+          const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+          toast.error(`${file.name} (${sizeMB}MB) excede o tamanho maximo de 10MB`);
+        } else if (error.code === 'file-invalid-type') {
+          toast.error(`${file.name} nao e um tipo de arquivo suportado`);
+        } else {
+          toast.error(`Erro ao processar ${file.name}: ${error.message}`);
+        }
+      });
+    });
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive, open: openFilePicker } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: ACCEPTED_TYPES,
     maxSize: MAX_SIZE,
     maxFiles: 1,

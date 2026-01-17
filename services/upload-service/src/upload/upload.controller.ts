@@ -77,6 +77,32 @@ export class UploadController {
     };
   }
 
+  @Post('avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB for avatars
+    }),
+  )
+  async uploadAvatar(
+    @CurrentUser() user: CurrentUserPayload,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Arquivo é obrigatório');
+    }
+
+    const result = await this.uploadService.uploadAvatar(
+      { id: user.id, email: user.email },
+      file.buffer,
+    );
+
+    return {
+      message: 'Avatar atualizado com sucesso',
+      ...result,
+    };
+  }
+
   @Get('presigned/:key(*)')
   @UseGuards(JwtAuthGuard)
   async getPresignedUrl(@Param('key') key: string) {

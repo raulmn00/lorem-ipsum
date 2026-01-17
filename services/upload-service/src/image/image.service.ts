@@ -12,6 +12,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 const THUMBNAIL_SIZE = 300;
+const AVATAR_SIZE = 256;
 
 export interface ImageMetadata {
   mimeType: string;
@@ -82,5 +83,24 @@ export class ImageService {
         dominantColor,
       },
     };
+  }
+
+  async processAvatar(buffer: Buffer): Promise<Buffer> {
+    // Validate mime-type
+    const fileType = await fileTypeFromBuffer(buffer);
+    if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
+      throw new BadRequestException(
+        `Tipo de arquivo não permitido. Use: ${ALLOWED_MIME_TYPES.join(', ')}`,
+      );
+    }
+
+    // Resize and crop to square avatar size
+    return sharp(buffer)
+      .resize(AVATAR_SIZE, AVATAR_SIZE, {
+        fit: 'cover',
+        position: 'center',
+      })
+      .jpeg({ quality: 90 })
+      .toBuffer();
   }
 }
