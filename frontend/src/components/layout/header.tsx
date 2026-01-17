@@ -21,12 +21,18 @@ export function Header() {
   const { user, logout } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Load avatar presigned URL
+  // Load avatar URL - use directly if external URL, otherwise get presigned URL from MinIO
   useEffect(() => {
     if (user?.avatarUrl) {
-      uploadApi.getPresignedUrl(user.avatarUrl)
-        .then(({ data }) => setAvatarUrl(data.url))
-        .catch(() => setAvatarUrl(null));
+      // If it's an external URL (Google, etc), use it directly
+      if (user.avatarUrl.startsWith('http://') || user.avatarUrl.startsWith('https://')) {
+        setAvatarUrl(user.avatarUrl);
+      } else {
+        // Otherwise, get presigned URL from MinIO
+        uploadApi.getPresignedUrl(user.avatarUrl)
+          .then(({ data }) => setAvatarUrl(data.url))
+          .catch(() => setAvatarUrl(null));
+      }
     } else {
       setAvatarUrl(null);
     }

@@ -68,7 +68,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # Step 1: Start Docker containers (only postgres and minio for dev)
-echo -e "\n${BLUE}[1/4] Iniciando containers Docker (PostgreSQL e MinIO)...${NC}"
+echo -e "\n${BLUE}[1/6] Iniciando containers Docker (PostgreSQL e MinIO)...${NC}"
 cd "$PROJECT_DIR"
 
 # Check if docker is running
@@ -94,8 +94,18 @@ until curl -s http://localhost:9000/minio/health/live >/dev/null 2>&1; do
 done
 echo -e "${GREEN}MinIO esta pronto!${NC}"
 
+# Create MinIO bucket if it doesn't exist
+echo -e "${YELLOW}Criando bucket 'photos' no MinIO...${NC}"
+docker exec minio-photo-gallery mc alias set local http://localhost:9000 minioadmin minioadmin >/dev/null 2>&1
+if docker exec minio-photo-gallery mc ls local/photos >/dev/null 2>&1; then
+    echo -e "${GREEN}Bucket 'photos' ja existe${NC}"
+else
+    docker exec minio-photo-gallery mc mb local/photos >/dev/null 2>&1
+    echo -e "${GREEN}Bucket 'photos' criado com sucesso!${NC}"
+fi
+
 # Step 2: Install dependencies for all services
-echo -e "\n${BLUE}[2/4] Instalando dependencias dos servicos...${NC}"
+echo -e "\n${BLUE}[2/6] Instalando dependencias dos servicos...${NC}"
 
 SERVICES=("api-gateway" "auth-service" "albums-service" "photos-service" "upload-service")
 
@@ -112,8 +122,25 @@ npm install --silent
 
 echo -e "${GREEN}Dependencias instaladas!${NC}"
 
-# Step 3: Start all backend services
-echo -e "\n${BLUE}[3/4] Iniciando servicos backend...${NC}"
+# Step 3: Run database migrations
+echo -e "\n${BLUE}[3/6] Executando migrations do banco de dados...${NC}"
+
+# Build and run auth-service migrations
+echo -e "${YELLOW}Executando migrations: auth-service${NC}"
+cd "$PROJECT_DIR/services/auth-service"
+npm run build --silent 2>/dev/null
+npm run migration:run --silent 2>/dev/null
+echo -e "${GREEN}Migrations auth-service executadas!${NC}"
+
+# Build and run albums-service migrations
+echo -e "${YELLOW}Executando migrations: albums-service${NC}"
+cd "$PROJECT_DIR/services/albums-service"
+npm run build --silent 2>/dev/null
+npm run migration:run --silent 2>/dev/null
+echo -e "${GREEN}Migrations albums-service executadas!${NC}"
+
+# Step 4: Start all backend services
+echo -e "\n${BLUE}[4/6] Iniciando servicos backend...${NC}"
 
 # Kill any existing processes on the ports
 kill_port 4000
@@ -157,14 +184,15 @@ wait_for_service 4000 "api-gateway"
 
 echo -e "${GREEN}Todos os servicos backend estao rodando!${NC}"
 
-# Step 4: Start Frontend
-echo -e "\n${BLUE}[4/4] Iniciando frontend...${NC}"
+# Step 5: Start Frontend
+echo -e "\n${BLUE}[5/6] Iniciando frontend...${NC}"
 kill_port 3000
 cd "$PROJECT_DIR/frontend"
 npm run dev > /tmp/photo-gallery-logs/frontend.log 2>&1 &
 wait_for_service 3000 "frontend"
 
-# Summary
+# Step 6: Summary
+echo -e "\n${BLUE}[6/6] Finalizando...${NC}"
 echo -e "\n${GREEN}========================================${NC}"
 echo -e "${GREEN}   Ambiente de desenvolvimento pronto!  ${NC}"
 echo -e "${GREEN}========================================${NC}"

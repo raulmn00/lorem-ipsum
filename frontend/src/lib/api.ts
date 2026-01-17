@@ -174,6 +174,8 @@ export const authApi = {
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
+  googleAuth: (data: { googleId: string; email: string; name: string; avatarUrl?: string }) =>
+    api.post('/auth/google', data),
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }),
   resetPassword: (data: { token: string; password: string }) =>

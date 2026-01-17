@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { GoogleLoginSection } from '@/components/auth/google-login-button';
 
 const loginSchema = z.object({
   email: z.string().email('Email invalido'),
@@ -92,6 +93,9 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
+
+          <GoogleLoginSection />
+
           <p className="text-sm text-center text-gray-600">
             Nao tem uma conta?{' '}
             <Link href="/register" className="text-blue-600 hover:underline">

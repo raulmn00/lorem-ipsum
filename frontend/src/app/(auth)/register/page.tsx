@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { GoogleLoginSection } from '@/components/auth/google-login-button';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -112,6 +113,9 @@ export default function RegisterPage() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Criando...' : 'Criar conta'}
           </Button>
+
+          <GoogleLoginSection />
+
           <p className="text-sm text-center text-gray-600">
             Ja tem uma conta?{' '}
             <Link href="/login" className="text-blue-600 hover:underline">
