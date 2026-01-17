@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { User } from '../users/entities/user.entity';
 import { PasswordReset } from './entities/password-reset.entity';
+import { EmailService } from '../email/email.service';
 import {
   RegisterDto,
   LoginDto,
@@ -30,6 +31,7 @@ export class AuthService {
     private passwordResetRepository: Repository<PasswordReset>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -103,13 +105,14 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{ token: string } | null> {
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<void> {
     const user = await this.usersRepository.findOne({
       where: { email: forgotPasswordDto.email },
     });
 
     if (!user) {
-      return null;
+      // Don't reveal if email exists or not for security
+      return;
     }
 
     const token = randomBytes(32).toString('hex');
@@ -124,7 +127,13 @@ export class AuthService {
 
     await this.passwordResetRepository.save(passwordReset);
 
-    return { token };
+    // Send password reset email
+    try {
+      await this.emailService.sendPasswordResetEmail(user.email, token);
+    } catch (error) {
+      console.error('Failed to send password reset email:', error);
+      // Don't throw error to user for security reasons
+    }
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
